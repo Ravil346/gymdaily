@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Макет v2 · Дневник тренировок</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --font: 'Quicksand', system-ui, sans-serif;
+  }
+
+  /* === Светлая тема === */
+  .theme-light {
+    --bg: #f7f4fb;
+    --surface: #ffffff;
+    --surface-2: #f0eaf7;
+    --border: #e4dcef;
+    --border-strong: #c9b8e0;
+    --text: #2d2540;
+    --text-muted: #7a6f8c;
+    --text-soft: #a89fb8;
+    --accent: #8b6fc7;
+    --accent-soft: #b89eef;
+    --accent-bg: #ede5fa;
+    --accent-text: #5d3fa8;
+    --success: #6fa97a;
+    --danger: #c87a8a;
+    --shadow: 0 2px 8px rgba(139, 111, 199, 0.08);
+    --shadow-strong: 0 4px 16px rgba(139, 111, 199, 0.15);
+  }
+
+  /* === Тёмная тема (мягкая) === */
+  .theme-dark {
+    --bg: #1f1a2b;
+    --surface: #2a2438;
+    --surface-2: #332b44;
+    --border: #3d3450;
+    --border-strong: #564a6e;
+    --text: #ebe5f5;
+    --text-muted: #a89bc4;
+    --text-soft: #7a6e94;
+    --accent: #b89eef;
+    --accent-soft: #d2bcff;
+    --accent-bg: #3d2f5c;
+    --accent-text: #d2bcff;
+    --success: #8fc89a;
+    --danger: #e09aaa;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --shadow-strong: 0 4px 16px rgba(0, 0, 0, 0.3);
+  }
+
+  body {
+    font-family: var(--font);
+    background: #d8d3e8;
+    color: #2d2540;
+    font-size: 16px;
+    line-height: 1.4;
+    padding: 32px 16px;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(at 0% 0%, #e8dff5 0%, transparent 50%),
+      radial-gradient(at 100% 100%, #d6cae8 0%, transparent 50%);
+  }
+
+  .page-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  h1.page-title {
+    font-family: var(--font);
+    font-size: 28px;
+    font-weight: 700;
+    color: #2d2540;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  .page-subtitle {
+    text-align: center;
+    color: #6d5d8a;
+    font-size: 14px;
+    margin-bottom: 32px;
+  }
+
+  h2.section-heading {
+    font-size: 20px;
+    font-weight: 700;
+    color: #2d2540;
+    margin: 40px 0 16px;
+    padding-left: 8px;
+  }
+
+  h2.section-heading:first-of-type { margin-top: 0; }
+
+  .screens-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 32px;
+    align-items: start;
+    justify-items: center;
+  }
+
+  .screen-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 380px;
+  }
+
+  .screen-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6d5d8a;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+
+  /* === Phone frame === */
+  .phone {
+    width: 360px;
+    height: 740px;
+    background: var(--bg);
+    border-radius: 36px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 12px 40px rgba(45, 37, 64, 0.18);
+    border: 8px solid #1a1525;
+    color: var(--text);
+  }
+
+  .status-bar {
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+    color: var(--text);
+  }
+
+  .top-nav {
+    padding: 8px 20px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .top-nav .title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .top-nav .action-btn {
+    font-size: 14px;
+    color: var(--accent);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: var(--font);
+  }
+
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 20px 100px;
+  }
+
+  /* === Bottom nav · Variant A: gradient bg, no panel === */
+  .bottom-nav-gradient {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 88px;
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 16px;
+    pointer-events: none;
+    background: linear-gradient(to top, var(--bg) 30%, transparent);
+  }
+
+  .bottom-nav-gradient .tabs {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    pointer-events: auto;
+  }
+
+  .bottom-nav-gradient .tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-soft);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 16px;
+    transition: color 0.2s;
+  }
+
+  .bottom-nav-gradient .tab.active {
+    color: var(--accent);
+  }
+
+  .tab-icon-svg {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* === Bottom nav · Variant B: floating capsule === */
+  .bottom-nav-capsule {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 32px;
+    padding: 8px;
+    display: flex;
+    gap: 4px;
+    box-shadow: var(--shadow-strong);
+    backdrop-filter: blur(20px);
+  }
+
+  .theme-dark .bottom-nav-capsule {
+    background: rgba(42, 36, 56, 0.92);
+  }
+
+  .bottom-nav-capsule .tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border-radius: 24px;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .bottom-nav-capsule .tab.active {
+    background: var(--accent-bg);
+    color: var(--accent-text);
+  }
+
+  .bottom-nav-capsule .tab .tab-icon-svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .bottom-nav-capsule .tab:not(.active) .label {
+    display: none;
+  }
+
+  /* === Bottom nav · Variant C: minimal line === */
+  .bottom-nav-line {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding-bottom: 8px;
+  }
+
+  .bottom-nav-line .tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    color: var(--text-soft);
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+    padding-top: 8px;
+  }
+
+  .bottom-nav-line .tab.active {
+    color: var(--accent);
+  }
+
+  .bottom-nav-line .tab.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 28px;
+    height: 3px;
+    background: var(--accent);
+    border-radius: 0 0 3px 3px;
+  }
+
+  /* === Common UI === */
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 20px 0 10px;
+  }
+
+  .section-label:first-child { margin-top: 0; }
+
+  .btn-primary {
+    width: 100%;
+    height: 54px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    font-family: var(--font);
+    box-shadow: 0 4px 12px rgba(139, 111, 199, 0.25);
+    transition: transform 0.1s;
+  }
+
+  .theme-dark .btn-primary {
+    box-shadow: 0 4px 12px rgba(184, 158, 239, 0.2);
+  }
+
+  .btn-primary:active { transform: scale(0.98); }
+
+  .btn-secondary {
+    width: 100%;
+    height: 48px;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    font-family: var(--font);
+  }
+
+  .btn-text {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 0;
+    font-weight: 600;
+    font-family: var(--font);
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    padding: 60px 24px 24px;
+  }
+
+  .empty-state .icon-circle {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: var(--accent-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+
+  .empty-state .icon-circle svg {
+    width: 40px;
+    height: 40px;
+    stroke: var(--accent);
+    fill: none;
+    stroke-width: 2;
+  }
+
+  .empty-state h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .empty-state p {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-bottom: 32px;
+    max-width: 260px;
+    line-height: 1.5;
+  }
+
+  /* === Главный === */
+  .day-header { margin-bottom: 20px; }
+
+  .day-header .label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+
+  .day-header .day-name {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.1;
+  }
+
+  .day-header .program-name {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  .day-switch {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .day-chip {
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--surface);
+    color: var(--text-muted);
+    font-family: var(--font);
+  }
+
+  .day-chip.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  .exercise-preview {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+
+  .exercise-preview .name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .exercise-preview .params {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .exercise-preview .progression-hint {
+    font-size: 12px;
+    color: var(--success);
+    margin-top: 6px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* === Тренировка === */
+  .workout-screen {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .workout-header {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .workout-header .icon-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 18px;
+  }
+
+  .workout-header .progress {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  .workout-header .finish {
+    color: var(--accent);
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 14px;
+    background: none;
+    border: none;
+    font-family: var(--font);
+  }
+
+  .swipe-container {
+    flex: 1;
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .swipe-container::-webkit-scrollbar { display: none; }
+
+  .swipe-page {
+    min-width: 100%;
+    scroll-snap-align: start;
+    padding: 20px 20px 24px;
+    overflow-y: auto;
+  }
+
+  .exercise-name-block {
+    margin-bottom: 24px;
+  }
+
+  .exercise-name-block .order {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+
+  .exercise-name-block .name {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.1;
+  }
+
+  .name-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+    padding: 4px 10px;
+    background: var(--accent-bg);
+    color: var(--accent-text);
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .target-info {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    font-weight: 500;
+    padding: 10px 14px;
+    background: var(--surface-2);
+    border-radius: 10px;
+  }
+
+  .sets-list { margin-bottom: 16px; }
+
+  .set-row {
+    display: grid;
+    grid-template-columns: 32px 1fr 1fr;
+    gap: 12px;
+    align-items: center;
+    padding: 14px 16px;
+    margin-bottom: 6px;
+    border-radius: 12px;
+    font-weight: 600;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .set-row .num {
+    font-size: 13px;
+    color: var(--text-soft);
+    font-weight: 700;
+  }
+
+  .set-row .val {
+    font-size: 16px;
+    color: var(--text);
+  }
+
+  .set-row.current {
+    background: var(--accent-bg);
+    border-color: var(--accent-soft);
+  }
+
+  .set-row.current .num,
+  .set-row.current .val { color: var(--accent-text); }
+
+  .set-row.pending {
+    background: transparent;
+    border-style: dashed;
+    border-color: var(--border);
+  }
+
+  .set-row.pending .val { color: var(--text-soft); }
+
+  .set-row.skipped { opacity: 0.6; }
+  .set-row.skipped .val { color: var(--text-muted); font-style: italic; }
+
+  .input-group { margin-top: 16px; }
+
+  .input-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .input-field { flex: 1; }
+
+  .input-field label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+
+  .input-field input {
+    width: 100%;
+    height: 60px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 0 16px;
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+    background: var(--surface);
+    font-family: var(--font);
+    color: var(--text);
+  }
+
+  .input-field input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .swipe-hint {
+    text-align: center;
+    margin-top: 12px;
+    font-size: 11px;
+    color: var(--text-soft);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  /* History page */
+  .history-page-content { background: var(--bg); }
+
+  .history-page-content .label {
+    font-size: 11px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+
+  .history-page-content .h-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .history-page-content .date {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+
+  .history-table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .history-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .history-table th {
+    text-align: left;
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    padding: 12px 16px;
+    background: var(--surface-2);
+  }
+
+  .history-table td {
+    padding: 14px 16px;
+    border-top: 1px solid var(--border);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .history-table td:first-child {
+    color: var(--text-soft);
+    width: 40px;
+  }
+
+  /* === Календарь === */
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .calendar-header .month {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .calendar-nav { display: flex; gap: 6px; }
+
+  .calendar-nav button {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-family: var(--font);
+  }
+
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+
+  .calendar-weekday {
+    text-align: center;
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    padding: 8px 0;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  .calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text);
+    position: relative;
+  }
+
+  .calendar-day.muted { color: var(--text-soft); }
+
+  .calendar-day.today {
+    color: var(--accent);
+    border: 2px solid var(--accent);
+  }
+
+  .calendar-day.has-workout {
+    background: var(--accent);
+    color: white;
+  }
+
+  .calendar-day.has-workout .day-mark {
+    font-size: 9px;
+    margin-top: 1px;
+    opacity: 0.85;
+    font-weight: 700;
+  }
+
+  .calendar-day.today.has-workout {
+    border: 2px solid var(--accent);
+    background: var(--accent);
+  }
+
+  .calendar-summary { margin-top: 28px; }
+
+  .workout-history-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    box-shadow: var(--shadow);
+  }
+
+  .workout-history-item .date-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+
+  .workout-history-item .date-line .date {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .workout-history-item .day-tag {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent-text);
+    background: var(--accent-bg);
+    padding: 4px 10px;
+    border-radius: 10px;
+    letter-spacing: 0.05em;
+  }
+
+  .workout-history-item .summary {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  /* Programs */
+  .program-card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+
+  .program-card.favorite {
+    border: 2px solid var(--accent);
+  }
+
+  .program-card .name-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+
+  .program-card .name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .program-card .star {
+    font-size: 18px;
+    color: var(--accent);
+  }
+
+  .program-card .star.empty {
+    color: var(--text-soft);
+  }
+
+  .program-card .info {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  /* Theme toggle in header */
+  .theme-toggle-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .theme-toggle-row .ttbtn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: white;
+    border: 1px solid #d8d3e8;
+    cursor: pointer;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 600;
+    color: #6d5d8a;
+  }
+
+  .theme-toggle-row .ttbtn.active {
+    background: #8b6fc7;
+    color: white;
+    border-color: #8b6fc7;
+  }
+
+  /* Notes */
+  .note {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: rgba(139, 111, 199, 0.08);
+    border: 1px dashed rgba(139, 111, 199, 0.3);
+    border-radius: 12px;
+    font-size: 12px;
+    color: #5d4d80;
+    max-width: 360px;
+    line-height: 1.5;
+  }
+
+  .note strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #2d2540;
+    font-weight: 700;
+  }
+
+  /* Variants section */
+  .variants-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 24px;
+    margin-bottom: 16px;
+  }
+
+  .variant-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #8b6fc7;
+    color: white;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+
+  .variant-desc {
+    font-size: 12px;
+    color: #6d5d8a;
+    margin-bottom: 12px;
+    max-width: 360px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+<h1 class="page-title">Дневник тренировок</h1>
+<p class="page-subtitle">Макет v2 · Quicksand · лавандовая палитра · светлая и тёмная темы</p>
+
+<!-- ============================================ -->
+<!-- ЧАСТЬ 1: ВАРИАНТЫ НИЖНЕГО МЕНЮ -->
+<!-- ============================================ -->
+<h2 class="section-heading">Три варианта нижнего меню</h2>
+
+<div class="variants-grid">
+
+<!-- VARIANT A: gradient -->
+<div class="screen-container">
+  <span class="variant-tag">Вариант A</span>
+  <div class="screen-label">Без панели · градиент к иконкам</div>
+  <p class="variant-desc">Меню без рамки. Контент плавно угасает в фон сверху. Самый воздушный, минималистичный, но активный пункт обозначается только цветом.</p>
+  <div class="phone theme-light">
+    <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+    <div class="top-nav"><div class="title">Тренировка</div></div>
+    <div class="content">
+      <div class="day-header">
+        <div class="label">Следующая</div>
+        <div class="day-name">День A</div>
+        <div class="program-name">Reg Park · Beginner</div>
+      </div>
+      <div class="exercise-preview">
+        <div class="name">Приседания со штангой</div>
+        <div class="params">5 × 5 · 80 кг</div>
+      </div>
+      <div class="exercise-preview">
+        <div class="name">Жим лёжа</div>
+        <div class="params">5 × 5 · 60 кг</div>
+      </div>
+      <div class="exercise-preview">
+        <div class="name">Становая тяга</div>
+        <div class="params">5 × 5 · 100 кг</div>
+      </div>
+    </div>
+    <div class="bottom-nav-gradient">
+      <div class="tabs">
+        <div class="tab active">
+          <svg class="tab-icon-svg" viewBox="0 0 24 24"><path d="M3 12L12 4l9 8M5 10v10h14V10"/></svg>
+          Главная
+        </div>
+        <div class="tab">
+          <svg class="tab-icon-svg" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+          Календарь
+        </div>
+        <div class="tab">
+          <svg class="tab-icon-svg" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          Программы
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VARIANT B: capsule -->
+<div class="screen-container">
+  <span class="variant-tag">Вариант B</span>
+  <div class="screen-label">Плавающая капсула</div>
+  <p class="variant-desc">Меню парит над контентом. У активного пункта показывается подпись и фон, остальные — только иконки. Современно, динамично.</p>
+  <div class="phone theme-light">
+    <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+    <div class="top-nav"><div class="title">Тренировка</div></div>
+    <div class="content">
+      <div class="day-header">
+        <div class="label">Следующая</div>
+        <div class="day-name">День A</div>
+        <div class="program-name">Reg Park · Beginner</div>
+      </div>
+      <div class="exercise-preview">
+        <div class="name">Приседания со штангой</div>
+        <div class="params">5 × 5 · 80 кг</div>
+      </div>
+      <div class="exercise-preview">
+        <div class="name">Жим лёжа</div>
+        <div class="params">5 × 5 · 60 кг</div>
+      </div>
+      <div class="exercise-preview">
+        <div class="name">Становая тяга</div>
+        <div class="params">5 × 5 · 100 кг</div>
+      </div>
+    </div>
+    <div class="bottom-nav-capsule">
+      <div class="tab active">
+        <svg class="tab-icon-svg" viewBox="0 0 24 24"><path d="M3 12L12 4l9 8M5 10v10h14V10"/></svg>
+        <span class="label">Главная</span>
+      </div>
+      <div class="tab">
+        <svg class="tab-icon-svg" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+      </div>
+      <div class="tab">
+        <svg class="tab-icon-svg" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VARIANT C: line with indicator -->
+<div class="screen-container">
+  <span class="variant-tag">Вариант C</span>
+  <div class="screen-label">Минимальная панель с индикатором</div>
+  <p class="variant-desc">Привычная нижняя панель с тонкой границей. Активный пункт получает подсветку сверху (короткая лавандовая полоска). Понятно, надёжно.</p>
+  <div class="phone theme-light">
+    <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+    <div class="top-nav"><div class="title">Тренировка</div></div>
+    <div class="content">
+      <div class="day-header">
+        <div class="label">Следующая</div>
+        <div class="day-name">День A</div>
+        <div class="program-name">Reg Park · Beginner</div>
+      </div>
+      <div class="exercise-preview">
+        <div class="name">Приседания со штангой</div>
+        <div class="params">5 × 5 · 80 кг</div>
+      </div>
+      <div class="exercise-preview">
+        <div class="name">Жим лёжа</div>
+        <div class="params">5 × 5 · 60 кг</div>
+      </div>
+      <div class="exercise-preview">
+        <div class="name">Становая тяга</div>
+        <div class="params">5 × 5 · 100 кг</div>
+      </div>
+    </div>
+    <div class="bottom-nav-line">
+      <div class="tab active">
+        <svg class="tab-icon-svg" viewBox="0 0 24 24"><path d="M3 12L12 4l9 8M5 10v10h14V10"/></svg>
+        Главная
+      </div>
+      <div class="tab">
+        <svg class="tab-icon-svg" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+        Календарь
+      </div>
+      <div class="tab">
+        <svg class="tab-icon-svg" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        Программы
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- ============================================ -->
+<!-- ЧАСТЬ 2: ОСНОВНЫЕ ЭКРАНЫ (вариант A — без панели) -->
+<!-- ============================================ -->
+<h2 class="section-heading">Светлая тема · полный поток (с меню варианта A)</h2>
+
+<div class="screens-grid">
+
+<!-- 1. Empty state -->
+<div class="screen-container">
+  <div class="screen-label">1 · Главная — нет программ</div>
+  <div class="phone theme-light">
+    <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+    <div class="top-nav"><div class="title">Тренировка</div></div>
+    <div class="content">
+      <div class="empty-state">
+        <div class="icon-circle">
+          <svg viewBox="0 0 24 24"><path d="M6 8v8M18 8v8M3 12h3M18 12h3M9 6v12M15 6v12" stroke-linecap="round"/></svg>
+        </div>
+        <h2>Готов начать?</h2>
+        <p>Создай свою первую программу тренировок</p>
+        <button class="btn-primary">Создать программу</button>
+      </div>
+    </div>
+    <div class="bottom-nav-gradient">
+      <div class="tabs">
+        <div class="tab active"><svg class="tab-icon-svg" viewBox="0 0 24 24"><path d="M3 12L12 4l9 8M5 10v10h14V10"/></svg>Главная</div>
+        <div class="tab"><svg class="tab-icon-svg" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>Календарь</div>
+        <div class="tab"><svg class="tab-icon-svg" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Программы</div>
+      </div>
+    </div>
+  </div>
+  <div class="note"><strong>Что изменилось</strong>Кнопка ниже — пустой блок сместился от верха, есть воздух. Иконка-штанга в круге вместо безликого квадрата.</div>
+</div>
+
+<!-- 2. Main with program -->
+<div class="screen-container">
+  <div class="screen-label">2 · Главная — с программой</div>
+  <div class="phone theme-light">
+    <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+    <div class="top-nav"><div class="title">Тренировка</div></div>
+    <div class="content">
+      <div class="day-header">
+        <div class="label">Следующая тренировка</div>
+        <div class="day-name">День A</div>
+        <div class="program-name">Reg Park · Beginner</div>
+      </div>
+
+      <div class="day-switch">
+        <div class="day-chip active">A</div>
+        <div class="day-chip">B</div>
+      </div>
+
+      <div class="section-label">Упражнения</div>
+
+      <div class="exercise-preview">
+        <div class="name">Приседания со штангой</div>
+        <div class="params">5 × 5 · 80 кг</div>
+        <div class="progression-hint">↑ +5 кг (всё сделано в прошлый раз)</div>
+      </div>
+
+      <div class="exercise-preview">
+        <div class="name">Жим лёжа</div>
+        <div class="params">5 × 5 · 60 кг</div>
+      </div>
+
+      <div class="exercise-preview">
+        <div class="name">Становая тяга</div>
+        <div class="params">5 × 5 · 100 кг</div>
+        <div class="progression-hint">↑ +5 кг</div>
+      </div>
+
+      <div class="exercise-preview">
+        <div class="name">Подтягивания</div>
+        <div class="params">3 × 8 · масса тела</div>
+      </div>
+
+      <button class="btn-primary">Начать тренировку</button>
+    </div>
+    <div class="bottom-nav-gradient">
+      <div class="tabs">
+        <div class="tab active"><svg class="tab-icon-svg" viewBox="0 0 24 24"><path d="M3 12L12 4l9 8M5 10v10h14V10"/></svg>Главная</div>
+        <div class="tab"><svg class="tab-icon-svg" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>Календарь</div>
+        <div class="tab"><svg class="tab-icon-svg" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Программы</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Workout -->
+<div class="screen-container">
+  <div class="screen-label">3 · Тренировка · упражнение</div>
+  <div class="phone theme-light">
+    <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+    <div class="workout-screen">
+      <div class="workout-header">
+        <div class="icon-btn">✕</div>
+        <div class="progress">2 из 4</div>
+        <button class="finish">Завершить</button>
+      </div>
+      <div class="swipe-container">
+        <div class="swipe-page">
+          <div class="exercise-name-block">
+            <div class="order">Упражнение 2 из 4</div>
+            <div class="name">Жим лёжа</div>
+            <div class="name-edit-btn">✎ Изменить название</div>
+          </div>
+
+          <div class="target-info">Цель: 5 × 5 · 60 кг</div>
+
+          <div class="sets-list">
+            <div class="set-row">
+              <span class="num">1</span>
+              <span class="val">60 кг</span>
+              <span class="val">5 повт</span>
+            </div>
+            <div class="set-row">
+              <span class="num">2</span>
+              <span class="val">60 кг</span>
+              <span class="val">5,5 повт</span>
+            </div>
+            <div class="set-row current">
+              <span class="num">3</span>
+              <span class="val">Текущий</span>
+              <span class="val">→</span>
+            </div>
+            <div class="set-row pending">
+              <span class="num">4</span>
+              <span class="val">—</span>
+              <span class="val">—</span>
+            </div>
+            <div class="set-row pending">
+              <span class="num">5</span>
+              <span class="val">—</span>
+              <span class="val">—</span>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <div class="input-row">
+              <div class="input-field">
+                <label>Вес, кг</label>
+                <input type="text" value="60">
+              </div>
+              <div class="input-field">
+                <label>Повторы</label>
+                <input type="text" value="5">
+              </div>
+            </div>
+            <button class="btn-primary">Записать подход</button>
+            <p class="swipe-hint">← свайп вправо · история этого упражнения</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="note"><strong>Что изменилось</strong>Дробные повторения поддерживаются (видно "5,5 повт" во втором подходе). Вес тоже может быть 0 или дробным. Кнопка "Пропустить" убрана — просто поставь 0 и нажми "Записать".</div>
+</div>
+
+<!-- 4. History swipe -->
+<div class="screen-container">
+  <div class="screen-label">4 · Свайп вправо · прошлый раз</div>
+  <div class="phone theme-light">
+    <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+    <div class="workout-screen">
+      <div class="workout-header">
+        <div class="icon-btn">✕</div>
+        <div class="progress">2 из 4</div>
+        <button class="finish">Завершить</button>
+      </div>
+      <div class="swipe-container">
+        <div class="swipe-page history-page-content">
+          <div class="label">Прошлый раз</div>
+          <div class="h-name">Жим лёжа</div>
+          <div class="date">3 мая · 7 дней назад</div>
+
+          <div class="history-table-wrap">
+            <table class="history-table">
+              <thead>
+                <tr><th>#</th><th>Вес</th><th>Повторы</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>1</td><td>57,5 кг</td><td>5</td></tr>
+                <tr><td>2</td><td>57,5 кг</td><td>5</td></tr>
+                <tr><td>3</td><td>57,5 кг</td><td>5</td></tr>
+                <tr><td>4</td><td>57,5 кг</td><td>5</td></tr>
+                <tr><td>5</td><td>57,5 кг</td><td>3,5</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="swipe-hint" style="margin-top: 20px;">свайп влево · вернуться к тренировке →</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="note"><strong>Заметка</strong>Если в прошлый раз вместо жима были брусья — здесь будут брусья. Если упражнения раньше не было — вместо таблицы строка «Раньше не выполнялось».</div>
+</div>
+
+<!-- 5. Calendar -->
+<div class="screen-container">
+  <div class="screen-label">5 · Календарь</div>
+  <div class="phone theme-light">
+    <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+    <div class="top-nav"><div class="title">Календарь</div></div>
+    <div class="content">
+      <div class="calendar-header">
+        <div class="month">Май 2026</div>
+        <div class="calendar-nav">
+          <button>‹</button>
+          <button>›</button>
+        </div>
+      </div>
+
+      <div class="calendar-grid">
+        <div class="calendar-weekday">Пн</div>
+        <div class="calendar-weekday">Вт</div>
+        <div class="calendar-weekday">Ср</div>
+        <div class="calendar-weekday">Чт</div>
+        <div class="calendar-weekday">Пт</div>
+        <div class="calendar-weekday">Сб</div>
+        <div class="calendar-weekday">Вс</div>
+
+        <div class="calendar-day muted">27</div>
+        <div class="calendar-day muted">28</div>
+        <div class="calendar-day muted">29</div>
+        <div class="calendar-day muted">30</div>
+        <div class="calendar-day">1</div>
+        <div class="calendar-day">2</div>
+        <div class="calendar-day has-workout">3<span class="day-mark">A</span></div>
+
+        <div class="calendar-day">4</div>
+        <div class="calendar-day has-workout">5<span class="day-mark">B</span></div>
+        <div class="calendar-day">6</div>
+        <div class="calendar-day has-workout">7<span class="day-mark">A</span></div>
+        <div class="calendar-day">8</div>
+        <div class="calendar-day">9</div>
+        <div class="calendar-day today">10</div>
+
+        <div class="calendar-day">11</div>
+        <div class="calendar-day">12</div>
+        <div class="calendar-day">13</div>
+        <div class="calendar-day">14</div>
+        <div class="calendar-day">15</div>
+        <div class="calendar-day">16</div>
+        <div class="calendar-day">17</div>
+
+        <div class="calendar-day">18</div>
+        <div class="calendar-day">19</div>
+        <div class="calendar-day">20</div>
+        <div class="calendar-day">21</div>
+        <div class="calendar-day">22</div>
+        <div class="calendar-day">23</div>
+        <div class="calendar-day">24</div>
+
+        <div class="calendar-day">25</div>
+        <div class="calendar-day">26</div>
+        <div class="calendar-day">27</div>
+        <div class="calendar-day">28</div>
+        <div class="calendar-day">29</div>
+        <div class="calendar-day">30</div>
+        <div class="calendar-day">31</div>
+      </div>
+
+      <div class="calendar-summary">
+        <div class="section-label">3 тренировки в мае</div>
+
+        <div class="workout-history-item">
+          <div class="date-line">
+            <div class="date">7 мая, чт</div>
+            <div class="day-tag">День A</div>
+          </div>
+          <div class="summary">4 упражнения · 18 подходов</div>
+        </div>
+
+        <div class="workout-history-item">
+          <div class="date-line">
+            <div class="date">5 мая, вт</div>
+            <div class="day-tag">День B</div>
+          </div>
+          <div class="summary">3 упражнения · 14 подходов</div>
+        </div>
+
+        <div class="workout-history-item">
+          <div class="date-line">
+            <div class="date">3 мая, вс</div>
+            <div class="day-tag">День A</div>
+          </div>
+          <div class="summary">4 упражнения · 19 подходов</div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav-gradient">
+      <div class="tabs">
+        <div class="tab"><svg class="tab-icon-svg" viewBox="0 0 24 24"><path d="M3 12L12 4l9 8M5 10v10h14V10"/></svg>Главная</div>
+        <div class="tab active"><svg class="tab-icon-svg" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>Календарь</div>
+        <div class="tab"><svg class="tab-icon-svg" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Программы</div>
+      </div>
+    </div>
+  </div>
+  <div class="note"><strong>Что изменилось</strong>Дни круглые. Сегодня — 10 мая (обведено лавандой, без заливки). Тренировки — лавандовые круги с буквой дня. Список тренировок отступает от календаря на 28px. Объём в кг убран.</div>
+</div>
+
+<!-- 6. Programs list -->
+<div class="screen-container">
+  <div class="screen-label">6 · Программы</div>
+  <div class="phone theme-light">
+    <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+    <div class="top-nav">
+      <div class="title">Программы</div>
+      <button class="action-btn">+ Новая</button>
+    </div>
+    <div class="content">
+      <div class="program-card favorite">
+        <div class="name-row">
+          <div class="name">Reg Park · Beginner</div>
+          <div class="star">★</div>
+        </div>
+        <div class="info">2 дня · 7 упражнений</div>
+      </div>
+
+      <div class="program-card">
+        <div class="name-row">
+          <div class="name">PPL · 6 дней</div>
+          <div class="star empty">☆</div>
+        </div>
+        <div class="info">3 дня · 21 упражнение</div>
+      </div>
+
+      <div class="program-card">
+        <div class="name-row">
+          <div class="name">Эксперимент · фуллбади</div>
+          <div class="star empty">☆</div>
+        </div>
+        <div class="info">1 день · 5 упражнений</div>
+      </div>
+    </div>
+    <div class="bottom-nav-gradient">
+      <div class="tabs">
+        <div class="tab"><svg class="tab-icon-svg" viewBox="0 0 24 24"><path d="M3 12L12 4l9 8M5 10v10h14V10"/></svg>Главная</div>
+        <div class="tab"><svg class="tab-icon-svg" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>Календарь</div>
+        <div class="tab active"><svg class="tab-icon-svg" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Программы</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- ============================================ -->
+<!-- ЧАСТЬ 3: ТЁМНАЯ ТЕМА -->
+<!-- ============================================ -->
+<h2 class="section-heading">Тёмная тема (мягкая, на той же палитре)</h2>
+
+<div class="screens-grid">
+
+<!-- D1 main -->
+<div class="screen-container">
+  <div class="screen-label">Главная — тёмная</div>
+  <div class="phone theme-dark">
+    <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+    <div class="top-nav"><div class="title">Тренировка</div></div>
+    <div class="content">
+      <div class="day-header">
+        <div class="label">Следующая тренировка</div>
+        <div class="day-name">День A</div>
+        <div class="program-name">Reg Park · Beginner</div>
+      </div>
+
+      <div class="day-switch">
+        <div class="day-chip active">A</div>
+        <div class="day-chip">B</div>
+      </div>
+
+      <div class="section-label">Упражнения</div>
+
+      <div class="exercise-preview">
+        <div class="name">Приседания со штангой</div>
+        <div class="params">5 × 5 · 80 кг</div>
+        <div class="progression-hint">↑ +5 кг</div>
+      </div>
+
+      <div class="exercise-preview">
+        <div class="name">Жим лёжа</div>
+        <div class="params">5 × 5 · 60 кг</div>
+      </div>
+
+      <div class="exercise-preview">
+        <div class="name">Становая тяга</div>
+        <div class="params">5 × 5 · 100 кг</div>
+      </div>
+
+      <button class="btn-primary">Начать тренировку</button>
+    </div>
+    <div class="bottom-nav-gradient">
+      <div class="tabs">
+        <div class="tab active"><svg class="tab-icon-svg" viewBox="0 0 24 24"><path d="M3 12L12 4l9 8M5 10v10h14V10"/></svg>Главная</div>
+        <div class="tab"><svg class="tab-icon-svg" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>Календарь</div>
+        <div class="tab"><svg class="tab-icon-svg" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Программы</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- D2 workout -->
+<div class="screen-container">
+  <div class="screen-label">Тренировка — тёмная</div>
+  <div class="phone theme-dark">
+    <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+    <div class="workout-screen">
+      <div class="workout-header">
+        <div class="icon-btn">✕</div>
+        <div class="progress">2 из 4</div>
+        <button class="finish">Завершить</button>
+      </div>
+      <div class="swipe-container">
+        <div class="swipe-page">
+          <div class="exercise-name-block">
+            <div class="order">Упражнение 2 из 4</div>
+            <div class="name">Жим лёжа</div>
+            <div class="name-edit-btn">✎ Изменить название</div>
+          </div>
+
+          <div class="target-info">Цель: 5 × 5 · 60 кг</div>
+
+          <div class="sets-list">
+            <div class="set-row">
+              <span class="num">1</span>
+              <span class="val">60 кг</span>
+              <span class="val">5 повт</span>
+            </div>
+            <div class="set-row">
+              <span class="num">2</span>
+              <span class="val">60 кг</span>
+              <span class="val">5 повт</span>
+            </div>
+            <div class="set-row current">
+              <span class="num">3</span>
+              <span class="val">Текущий</span>
+              <span class="val">→</span>
+            </div>
+            <div class="set-row pending">
+              <span class="num">4</span>
+              <span class="val">—</span>
+              <span class="val">—</span>
+            </div>
+            <div class="set-row pending">
+              <span class="num">5</span>
+              <span class="val">—</span>
+              <span class="val">—</span>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <div class="input-row">
+              <div class="input-field">
+                <label>Вес, кг</label>
+                <input type="text" value="60">
+              </div>
+              <div class="input-field">
+                <label>Повторы</label>
+                <input type="text" value="5">
+              </div>
+            </div>
+            <button class="btn-primary">Записать подход</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- D3 calendar -->
+<div class="screen-container">
+  <div class="screen-label">Календарь — тёмная</div>
+  <div class="phone theme-dark">
+    <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+    <div class="top-nav"><div class="title">Календарь</div></div>
+    <div class="content">
+      <div class="calendar-header">
+        <div class="month">Май 2026</div>
+        <div class="calendar-nav">
+          <button>‹</button>
+          <button>›</button>
+        </div>
+      </div>
+
+      <div class="calendar-grid">
+        <div class="calendar-weekday">Пн</div>
+        <div class="calendar-weekday">Вт</div>
+        <div class="calendar-weekday">Ср</div>
+        <div class="calendar-weekday">Чт</div>
+        <div class="calendar-weekday">Пт</div>
+        <div class="calendar-weekday">Сб</div>
+        <div class="calendar-weekday">Вс</div>
+
+        <div class="calendar-day muted">27</div>
+        <div class="calendar-day muted">28</div>
+        <div class="calendar-day muted">29</div>
+        <div class="calendar-day muted">30</div>
+        <div class="calendar-day">1</div>
+        <div class="calendar-day">2</div>
+        <div class="calendar-day has-workout">3<span class="day-mark">A</span></div>
+
+        <div class="calendar-day">4</div>
+        <div class="calendar-day has-workout">5<span class="day-mark">B</span></div>
+        <div class="calendar-day">6</div>
+        <div class="calendar-day has-workout">7<span class="day-mark">A</span></div>
+        <div class="calendar-day">8</div>
+        <div class="calendar-day">9</div>
+        <div class="calendar-day today">10</div>
+
+        <div class="calendar-day">11</div>
+        <div class="calendar-day">12</div>
+        <div class="calendar-day">13</div>
+        <div class="calendar-day">14</div>
+        <div class="calendar-day">15</div>
+        <div class="calendar-day">16</div>
+        <div class="calendar-day">17</div>
+      </div>
+
+      <div class="calendar-summary">
+        <div class="section-label">3 тренировки в мае</div>
+
+        <div class="workout-history-item">
+          <div class="date-line">
+            <div class="date">7 мая, чт</div>
+            <div class="day-tag">День A</div>
+          </div>
+          <div class="summary">4 упражнения · 18 подходов</div>
+        </div>
+
+        <div class="workout-history-item">
+          <div class="date-line">
+            <div class="date">5 мая, вт</div>
+            <div class="day-tag">День B</div>
+          </div>
+          <div class="summary">3 упражнения · 14 подходов</div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav-gradient">
+      <div class="tabs">
+        <div class="tab"><svg class="tab-icon-svg" viewBox="0 0 24 24"><path d="M3 12L12 4l9 8M5 10v10h14V10"/></svg>Главная</div>
+        <div class="tab active"><svg class="tab-icon-svg" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>Календарь</div>
+        <div class="tab"><svg class="tab-icon-svg" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>Программы</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="note" style="max-width: 720px; margin: 32px auto 0;">
+  <strong>Палитра</strong>
+  Светлая: фон #f7f4fb (молочный лавандовый), акцент #8b6fc7 (приглушённая лаванда), текст #2d2540 (тёмный сливовый).<br><br>
+  Тёмная: фон #1f1a2b (баклажановый, не чёрный), акцент #b89eef (светлая лаванда для контраста), текст #ebe5f5 (мягкий бежево-лавандовый).<br><br>
+  В реальном приложении тема переключается в настройках или автоматически по системе.
+</div>
+
+</div>
+
+</body>
+</html>

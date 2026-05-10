@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node *)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(ls *)",
+      "Bash(ls)",
+      "Bash(dir *)",
+      "Bash(PowerShell *)",
+      "Bash(powershell *)",
+      "Bash(Invoke-WebRequest *)",
+      "Bash(cd *)",
+      "Bash(mkdir *)",
+      "Bash(New-Item *)",
+      "Bash(Copy-Item *)",
+      "Bash(Remove-Item *)",
+      "Bash(Get-ChildItem *)",
+      "Bash(echo *)",
+      "Bash(type *)",
+      "Bash(cat *)"
+    ]
+  }
+}

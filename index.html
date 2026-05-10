@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+
+  <!-- Viewport: viewport-fit=cover для safe-area на iPhone -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+
+  <!-- PWA / iOS -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Тренировки" />
+  <meta name="theme-color" content="#8b6fc7" />
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+
+  <title>Дневник тренировок</title>
+
+  <!-- Anti-FOUC: применить тему до рендера React -->
+  <script>
+    (function () {
+      var t = localStorage.getItem('theme') || 'auto';
+      if (t === 'auto') {
+        t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+
+  <!-- Шрифт Quicksand — локально, для офлайн-работы -->
+  <style>
+    @font-face {
+      font-family: 'Quicksand';
+      src: url('./fonts/quicksand-400.woff2') format('woff2');
+      font-weight: 400;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Quicksand';
+      src: url('./fonts/quicksand-500.woff2') format('woff2');
+      font-weight: 500;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Quicksand';
+      src: url('./fonts/quicksand-600.woff2') format('woff2');
+      font-weight: 600;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'Quicksand';
+      src: url('./fonts/quicksand-700.woff2') format('woff2');
+      font-weight: 700;
+      font-display: swap;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+/* ── Светлая тема ── */
+html[data-theme="light"] {
+  --bg: #f7f4fb;
+  --surface: #ffffff;
+  --surface-2: #f0eaf7;
+  --border: #e4dcef;
+  --border-strong: #c9b8e0;
+  --text: #2d2540;
+  --text-muted: #7a6f8c;
+  --text-soft: #a89fb8;
+  --accent: #8b6fc7;
+  --accent-soft: #b89eef;
+  --accent-bg: #ede5fa;
+  --accent-text: #5d3fa8;
+  --success: #6fa97a;
+  --danger: #c87a8a;
+  --shadow: 0 2px 8px rgba(139, 111, 199, 0.08);
+  --shadow-strong: 0 4px 16px rgba(139, 111, 199, 0.15);
+  --nav-bg: rgba(255, 255, 255, 0.88);
+}
+
+/* ── Тёмная тема (мягкая, не чёрная) ── */
+html[data-theme="dark"] {
+  --bg: #1f1a2b;
+  --surface: #2a2438;
+  --surface-2: #332b44;
+  --border: #3d3450;
+  --border-strong: #564a6e;
+  --text: #ebe5f5;
+  --text-muted: #a89bc4;
+  --text-soft: #7a6e94;
+  --accent: #b89eef;
+  --accent-soft: #d2bcff;
+  --accent-bg: #3d2f5c;
+  --accent-text: #d2bcff;
+  --success: #8fc89a;
+  --danger: #e09aaa;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-strong: 0 4px 16px rgba(0, 0, 0, 0.3);
+  --nav-bg: rgba(42, 36, 56, 0.92);
+}
+
+/* Фолбэк пока JS не применил data-theme */
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    --bg: #1f1a2b;
+    --surface: #2a2438;
+    --surface-2: #332b44;
+    --border: #3d3450;
+    --border-strong: #564a6e;
+    --text: #ebe5f5;
+    --text-muted: #a89bc4;
+    --text-soft: #7a6e94;
+    --accent: #b89eef;
+    --accent-soft: #d2bcff;
+    --accent-bg: #3d2f5c;
+    --accent-text: #d2bcff;
+    --success: #8fc89a;
+    --danger: #e09aaa;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --shadow-strong: 0 4px 16px rgba(0, 0, 0, 0.3);
+    --nav-bg: rgba(42, 36, 56, 0.92);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  html:not([data-theme]) {
+    --bg: #f7f4fb;
+    --surface: #ffffff;
+    --surface-2: #f0eaf7;
+    --border: #e4dcef;
+    --border-strong: #c9b8e0;
+    --text: #2d2540;
+    --text-muted: #7a6f8c;
+    --text-soft: #a89fb8;
+    --accent: #8b6fc7;
+    --accent-soft: #b89eef;
+    --accent-bg: #ede5fa;
+    --accent-text: #5d3fa8;
+    --success: #6fa97a;
+    --danger: #c87a8a;
+    --shadow: 0 2px 8px rgba(139, 111, 199, 0.08);
+    --shadow-strong: 0 4px 16px rgba(139, 111, 199, 0.15);
+    --nav-bg: rgba(255, 255, 255, 0.88);
+  }
+}
