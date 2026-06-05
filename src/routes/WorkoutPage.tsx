@@ -3,7 +3,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { X, CheckCircle2 } from 'lucide-react';
 import { db } from '../db/schema';
 import type { WorkoutExercise, WorkoutSet, ProgramExercise } from '../db/schema';
-import { addWorkoutSet, deleteWorkoutSet, finishWorkout } from '../db/queries';
+import { addWorkoutSet, deleteWorkoutSet, finishWorkout, getPreviousExerciseSets } from '../db/queries';
 import { SwipeToDelete } from '../components/SwipeToDelete';
 import { formatNum, parseInputNum } from '../utils/format';
 
@@ -11,6 +11,7 @@ interface ExData {
   we: WorkoutExercise;
   template: ProgramExercise | null;
   sets: WorkoutSet[];
+  prevSets: WorkoutSet[];
 }
 
 // ── Панель одного упражнения ──────────────────────────────
@@ -67,9 +68,22 @@ function ExercisePanel({ ex, isLast, suppressSwipe, onRecord, onDelete, onFinish
 
       {/* Цель */}
       {ex.template && (
-        <div style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 500, marginBottom: 14, flexShrink: 0 }}>
+        <div style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 500, marginBottom: ex.prevSets.length > 0 ? 8 : 14, flexShrink: 0 }}>
           {ex.template.sets} × {ex.template.reps} повт
-          {ex.template.weight > 0 ? ` · ${formatNum(ex.template.weight)} кг` : ' · масса тела'}
+        </div>
+      )}
+
+      {/* Прошлая тренировка — построчно по подходам */}
+      {ex.prevSets.length > 0 && (
+        <div style={{ marginBottom: 14, flexShrink: 0 }}>
+          <div style={{ fontSize: 11, color: 'var(--text-soft)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.3, marginBottom: 4 }}>
+            Прошлая тренировка
+          </div>
+          {ex.prevSets.map(set => (
+            <div key={set.id} style={{ fontSize: 12, color: 'var(--text-soft)', lineHeight: 1.6 }}>
+              {set.setNumber}. {set.weight === 0 ? 'масса тела' : `${formatNum(set.weight)} кг`} × {formatNum(set.reps)}
+            </div>
+          ))}
         </div>
       )}
 
@@ -190,6 +204,8 @@ export function WorkoutPage() {
 
   const load = useCallback(async () => {
     if (!wid) return;
+    const workout = await db.workouts.get(wid);
+    const currentDate = workout?.date ?? Date.now();
     const wes = await db.workoutExercises.where('workoutId').equals(wid).sortBy('order');
     const result: ExData[] = await Promise.all(
       wes.map(async we => {
@@ -199,10 +215,10 @@ export function WorkoutPage() {
         const sets = await db.workoutSets
           .where('workoutExerciseId').equals(we.id!)
           .sortBy('setNumber');
-        return { we, template, sets };
+        const prevSets = await getPreviousExerciseSets(wid, currentDate, we.programExerciseId, we.name);
+        return { we, template, sets, prevSets };
       })
     );
-    const workout = await db.workouts.get(wid);
     setAlreadyFinished(!!workout?.finishedAt);
     setExercises(result);
     setLoading(false);

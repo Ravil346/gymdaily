@@ -145,6 +145,42 @@ export async function getWorkoutSets(workoutExerciseId: number): Promise<Workout
   return db.workoutSets.where('workoutExerciseId').equals(workoutExerciseId).sortBy('setNumber');
 }
 
+/**
+ * Возвращает подходы того же упражнения из самой свежей предыдущей тренировки.
+ * Упражнение сопоставляется по шаблону (programExerciseId), а если его нет —
+ * по названию. Берётся ближайшая по дате тренировка раньше текущей, в которой
+ * есть записанные подходы.
+ */
+export async function getPreviousExerciseSets(
+  currentWorkoutId: number,
+  currentDate: number,
+  programExerciseId: number,
+  exerciseName: string
+): Promise<WorkoutSet[]> {
+  const candidates = programExerciseId
+    ? await db.workoutExercises.where('programExerciseId').equals(programExerciseId).toArray()
+    : await db.workoutExercises.filter(x => x.name === exerciseName).toArray();
+
+  const withDate = await Promise.all(
+    candidates.map(async c => ({
+      we: c,
+      date: (await db.workouts.get(c.workoutId))?.date ?? 0,
+    }))
+  );
+
+  const previous = withDate
+    .filter(x => x.we.workoutId !== currentWorkoutId && x.date < currentDate)
+    .sort((a, b) => b.date - a.date);
+
+  for (const p of previous) {
+    const sets = await db.workoutSets
+      .where('workoutExerciseId').equals(p.we.id!)
+      .sortBy('setNumber');
+    if (sets.length > 0) return sets;
+  }
+  return [];
+}
+
 export async function addWorkoutSet(
   workoutExerciseId: number,
   setNumber: number,
