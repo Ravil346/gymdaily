@@ -54,7 +54,10 @@ function ExercisePanel({ ex, isLast, suppressSwipe, onRecord, onDelete, onDelete
   const targetSets = ex.template?.sets ?? 0;
   const doneSets = ex.sets.length;
   const allDone = targetSets > 0 && doneSets >= targetSets;
-  const showFinish = isLast && allDone;
+  // На последнем упражнении показываем «Завершить»: когда выполнены все целевые
+  // подходы, либо когда у упражнения нет цели (разовое) — иначе из такой
+  // тренировки нельзя было бы выйти с завершением.
+  const showFinish = isLast && (allDone || targetSets === 0);
 
   return (
     <div style={{
@@ -395,57 +398,38 @@ export function WorkoutPage() {
             </button>
           ) : (
             <button
-              onClick={handleFinish}
-              disabled={finishing}
-              style={{ color: 'var(--accent)', fontWeight: 600, fontSize: 14, background: 'none', border: 'none', cursor: 'pointer', minWidth: 64, textAlign: 'right' }}
+              className="btn-icon"
+              onClick={() => { setNewExName(''); setShowAddModal(true); }}
+              aria-label="Добавить упражнение"
+              style={{ color: 'var(--accent)' }}
             >
-              {finishing ? '…' : 'Завершить'}
+              <Plus size={18} />
             </button>
           )}
         </div>
       )}
 
-      {/* Точки-навигация + кнопка добавления */}
-      {!loading && total > 0 && (
-        <div style={{ position: 'relative', padding: '0 20px 12px', flexShrink: 0, minHeight: 20 }}>
-          {total > 1 && (
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 6 }}>
-              {exercises.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => goTo(i)}
-                  style={{
-                    width: i === currentIdx ? 20 : 8,
-                    height: 8,
-                    borderRadius: 4,
-                    background: i === currentIdx ? 'var(--accent)' : 'var(--border-strong)',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: 0,
-                    transition: 'width 0.2s ease',
-                    flexShrink: 0,
-                  }}
-                  aria-label={`Упражнение ${i + 1}`}
-                />
-              ))}
-            </div>
-          )}
-          {!alreadyFinished && (
+      {/* Точки-навигация */}
+      {!loading && total > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 6, padding: '0 20px 12px', flexShrink: 0 }}>
+          {exercises.map((_, i) => (
             <button
-              onClick={() => { setNewExName(''); setShowAddModal(true); }}
-              aria-label="Добавить упражнение"
+              key={i}
+              onClick={() => goTo(i)}
               style={{
-                position: 'absolute', right: 16, top: -6,
-                display: 'flex', alignItems: 'center', gap: 4,
-                padding: '6px 10px', borderRadius: 16,
-                background: 'var(--accent-bg)', color: 'var(--accent-text)',
-                border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
+                width: i === currentIdx ? 20 : 8,
+                height: 8,
+                borderRadius: 4,
+                background: i === currentIdx ? 'var(--accent)' : 'var(--border-strong)',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 0,
+                transition: 'width 0.2s ease',
+                flexShrink: 0,
               }}
-            >
-              <Plus size={14} />
-              Упражнение
-            </button>
-          )}
+              aria-label={`Упражнение ${i + 1}`}
+            />
+          ))}
         </div>
       )}
 
