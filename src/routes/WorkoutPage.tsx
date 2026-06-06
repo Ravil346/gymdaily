@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { X, CheckCircle2 } from 'lucide-react';
+import { X, CheckCircle2, Plus, Trash2 } from 'lucide-react';
 import { db } from '../db/schema';
 import type { WorkoutExercise, WorkoutSet, ProgramExercise } from '../db/schema';
-import { addWorkoutSet, deleteWorkoutSet, finishWorkout, getPreviousExerciseSets } from '../db/queries';
+import { addWorkoutSet, deleteWorkoutSet, finishWorkout, getPreviousExerciseSets, addWorkoutExercise, deleteWorkoutExercise } from '../db/queries';
 import { SwipeToDelete } from '../components/SwipeToDelete';
 import { formatNum, parseInputNum } from '../utils/format';
 
@@ -22,11 +22,14 @@ interface PanelProps {
   suppressSwipe: React.MutableRefObject<boolean>;
   onRecord: (weight: number, reps: number, setNumber: number) => Promise<void>;
   onDelete: (setId: number) => void;
+  onDeleteExercise: () => void;
   onFinish: () => void;
   finishing: boolean;
 }
 
-function ExercisePanel({ ex, isLast, suppressSwipe, onRecord, onDelete, onFinish, finishing }: PanelProps) {
+function ExercisePanel({ ex, isLast, suppressSwipe, onRecord, onDelete, onDeleteExercise, onFinish, finishing }: PanelProps) {
+  // Разовое упражнение — добавлено в тренировку, без шаблона программы
+  const isAdHoc = !ex.we.programExerciseId;
   const [weight, setWeight] = useState('');
   const [reps, setReps] = useState('');
   const [recording, setRecording] = useState(false);
@@ -62,14 +65,29 @@ function ExercisePanel({ ex, isLast, suppressSwipe, onRecord, onDelete, onFinish
       padding: '0 20px',
     }}>
       {/* Название */}
-      <h2 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text)', lineHeight: 1.2, flexShrink: 0, marginBottom: 4 }}>
-        {ex.we.name}
-      </h2>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, flexShrink: 0, marginBottom: 4 }}>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text)', lineHeight: 1.2, flex: 1, minWidth: 0 }}>
+          {ex.we.name}
+        </h2>
+        {isAdHoc && (
+          <button
+            onClick={onDeleteExercise}
+            aria-label="Удалить упражнение"
+            style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--danger)', background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0, marginTop: -2 }}
+          >
+            <Trash2 size={18} />
+          </button>
+        )}
+      </div>
 
-      {/* Цель */}
-      {ex.template && (
+      {/* Цель / тип */}
+      {ex.template ? (
         <div style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 500, marginBottom: ex.prevSets.length > 0 ? 8 : 14, flexShrink: 0 }}>
           {ex.template.sets} × {ex.template.reps} повт
+        </div>
+      ) : (
+        <div style={{ fontSize: 13, color: 'var(--text-soft)', fontWeight: 500, marginBottom: ex.prevSets.length > 0 ? 8 : 14, flexShrink: 0 }}>
+          Разовое упражнение
         </div>
       )}
 
@@ -194,6 +212,9 @@ export function WorkoutPage() {
   const [loading, setLoading] = useState(true);
   const [finishing, setFinishing] = useState(false);
   const [alreadyFinished, setAlreadyFinished] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newExName, setNewExName] = useState('');
+  const [addingEx, setAddingEx] = useState(false);
 
   const carouselRef = useRef<HTMLDivElement>(null);
   const suppressSwipe = useRef(false);
@@ -310,6 +331,31 @@ export function WorkoutPage() {
     ));
   };
 
+  const handleAddExercise = async () => {
+    if (!wid) return;
+    const name = newExName.trim();
+    if (!name) return;
+    setAddingEx(true);
+    try {
+      const targetIdx = exercises.length; // новое упражнение встанет в конец
+      await addWorkoutExercise(wid, name);
+      await load();
+      setNewExName('');
+      setShowAddModal(false);
+      goTo(targetIdx);
+    } finally {
+      setAddingEx(false);
+    }
+  };
+
+  const handleDeleteExercise = async (exIdx: number) => {
+    const ex = exercises[exIdx];
+    if (!ex) return;
+    await deleteWorkoutExercise(ex.we.id!);
+    await load();
+    setCurrentIdx(i => Math.max(0, Math.min(i, exercises.length - 2)));
+  };
+
   const handleFinish = async () => {
     if (!wid) return;
     setFinishing(true);
@@ -359,27 +405,47 @@ export function WorkoutPage() {
         </div>
       )}
 
-      {/* Точки-навигация */}
-      {!loading && total > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 6, padding: '0 20px 12px', flexShrink: 0 }}>
-          {exercises.map((_, i) => (
+      {/* Точки-навигация + кнопка добавления */}
+      {!loading && total > 0 && (
+        <div style={{ position: 'relative', padding: '0 20px 12px', flexShrink: 0, minHeight: 20 }}>
+          {total > 1 && (
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 6 }}>
+              {exercises.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => goTo(i)}
+                  style={{
+                    width: i === currentIdx ? 20 : 8,
+                    height: 8,
+                    borderRadius: 4,
+                    background: i === currentIdx ? 'var(--accent)' : 'var(--border-strong)',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 0,
+                    transition: 'width 0.2s ease',
+                    flexShrink: 0,
+                  }}
+                  aria-label={`Упражнение ${i + 1}`}
+                />
+              ))}
+            </div>
+          )}
+          {!alreadyFinished && (
             <button
-              key={i}
-              onClick={() => goTo(i)}
+              onClick={() => { setNewExName(''); setShowAddModal(true); }}
+              aria-label="Добавить упражнение"
               style={{
-                width: i === currentIdx ? 20 : 8,
-                height: 8,
-                borderRadius: 4,
-                background: i === currentIdx ? 'var(--accent)' : 'var(--border-strong)',
-                border: 'none',
-                cursor: 'pointer',
-                padding: 0,
-                transition: 'width 0.2s ease',
-                flexShrink: 0,
+                position: 'absolute', right: 16, top: -6,
+                display: 'flex', alignItems: 'center', gap: 4,
+                padding: '6px 10px', borderRadius: 16,
+                background: 'var(--accent-bg)', color: 'var(--accent-text)',
+                border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
               }}
-              aria-label={`Упражнение ${i + 1}`}
-            />
-          ))}
+            >
+              <Plus size={14} />
+              Упражнение
+            </button>
+          )}
         </div>
       )}
 
@@ -412,6 +478,7 @@ export function WorkoutPage() {
                 suppressSwipe={suppressSwipe}
                 onRecord={(w, r, n) => handleRecord(i, w, r, n)}
                 onDelete={(setId) => handleDeleteSet(i, setId)}
+                onDeleteExercise={() => handleDeleteExercise(i)}
                 onFinish={handleFinish}
                 finishing={finishing}
               />
@@ -419,6 +486,55 @@ export function WorkoutPage() {
           </div>
         )}
       </div>
+
+      {/* Модалка добавления разового упражнения */}
+      {showAddModal && (
+        <div
+          onClick={() => !addingEx && setShowAddModal(false)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 200,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: 20,
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              width: '100%', maxWidth: 360,
+              background: 'var(--surface)', border: '1px solid var(--border)',
+              borderRadius: 20, padding: 20, boxShadow: 'var(--shadow-strong)',
+            }}
+          >
+            <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--text)', marginBottom: 14 }}>
+              Добавить упражнение
+            </div>
+            <label className="input-label">Название</label>
+            <input
+              className="input"
+              type="text"
+              value={newExName}
+              onChange={e => setNewExName(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') handleAddExercise(); }}
+              placeholder="Например: Подтягивания"
+              autoFocus
+            />
+            <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+              <button className="btn-secondary" onClick={() => setShowAddModal(false)} disabled={addingEx}>
+                Отмена
+              </button>
+              <button
+                className="btn-primary"
+                style={{ height: 48 }}
+                onClick={handleAddExercise}
+                disabled={addingEx || !newExName.trim()}
+              >
+                {addingEx ? '…' : 'Добавить'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

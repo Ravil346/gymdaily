@@ -139,6 +139,27 @@ export async function updateWorkoutExerciseName(id: number, name: string): Promi
   await db.workoutExercises.update(id, { name });
 }
 
+/**
+ * Добавляет разовое упражнение в конкретную тренировку, не затрагивая программу.
+ * Такое упражнение не связано с шаблоном (programExerciseId = 0), но отображается
+ * в этой тренировке и в истории.
+ */
+export async function addWorkoutExercise(workoutId: number, name: string): Promise<number> {
+  const count = await db.workoutExercises.where('workoutId').equals(workoutId).count();
+  return db.workoutExercises.add({
+    workoutId,
+    programExerciseId: 0,
+    name,
+    order: count,
+    comment: '',
+  });
+}
+
+export async function deleteWorkoutExercise(id: number): Promise<void> {
+  await db.workoutSets.where('workoutExerciseId').equals(id).delete();
+  await db.workoutExercises.delete(id);
+}
+
 // ── Подходы ───────────────────────────────────────────────
 
 export async function getWorkoutSets(workoutExerciseId: number): Promise<WorkoutSet[]> {
